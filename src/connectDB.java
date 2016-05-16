@@ -9,7 +9,7 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
+import java.util.List;
 
 public class connectDB {
 
@@ -19,11 +19,15 @@ public class connectDB {
         String[] hbase_config = new String[3];
         hbase_config = read_hbase_config();
 
-        //拿到RDB的配置参数
-        ArrayList rdb_config = new ArrayList();
-        rdb_config = read_rdbs_config();
-
-        System.out.println(rdb_config.size());
+        //拿到RDB的配置参数,变换成数组
+        ArrayList read_rdbs_config = new ArrayList();
+        read_rdbs_config = read_rdbs_config();
+        Object[] rdb_config_obj = read_rdbs_config.toArray();
+        String[] rdb_config = new String[read_rdbs_config.size()];
+        for (int i=0; i<rdb_config_obj.length; i++) {
+            String str = (String) rdb_config_obj[i];
+            rdb_config[i] = str;
+        }
     }
 
     //获取hbase配置文件信息
@@ -122,7 +126,15 @@ public class connectDB {
 
 
     public static void cnnoectDB() {
-
+        //拿到RDB的配置参数,变换成数组
+        ArrayList read_rdbs_config = new ArrayList();
+        read_rdbs_config = read_rdbs_config();
+        Object[] rdb_config_obj = read_rdbs_config.toArray();
+        String[] rdb_config = new String[read_rdbs_config.size()];
+        for (int i=0; i<rdb_config_obj.length; i++) {
+            String str = (String) rdb_config_obj[i];
+            rdb_config[i] = str;
+        }
     }
 
 }
