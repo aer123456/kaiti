@@ -1,1 +1,0 @@
-2016.05.01:12:00:23 127.0.0.1:3306 database1 table2 100 row changed

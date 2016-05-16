@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="GB2312"?>
+<config>
+	<RDB>//关系数据库表
+        <type>mysql</type>//数据库类型
+        <address>127.0.0.1:3306</address>//地址
+        <username>admin</username>//用户名
+        <password>000000</password>//密码
+        <databases>//一个数据库地址包含多个database
+            <database>//一个database包含多个table,每个表都要设置同步到哪里
+                <name>DB1</name>
+                <tables>
+                    <table>
+                        <tablename>table1</tablename>//要同步的表
+                        <sync>table1_to</sync>//同步到HBASE的哪个表中
+                        <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
+                    </table>
+                    <table>
+                        <tablename>table2</tablename>//要同步的表
+                        <sync>table2_to</sync>//同步到HBASE的哪个表中
+                        <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
+                    </table>
+                </tables>
+            </database>
+            <database>//一个database包含多个table,每个表都要设置同步到哪里
+                <name>DB2</name>
+                <tables>
+                    <table>
+                        <tablename>table3</tablename>//要同步的表
+                        <sync>table3_to</sync>//同步到HBASE的哪个表中
+                        <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
+                    </table>
+                </tables>
+            </database>
+        </databases>
+	</RDB>
+	<HBASE>
+		<address>127.0.0.1:3306</address>
+		<username>admin</username>
+		<password>000000</password>
+	</HBASE>
+</config>
