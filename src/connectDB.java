@@ -13,16 +13,16 @@ import java.util.ArrayList;
 public class connectDB extends Thread{
 
     //hbase配置参数私有变量
-    private  String hbase_address;
-    private  String hbase_username;
-    private  String hbase_password;
+    private String hbase_address;
+    private String hbase_username;
+    private String hbase_password;
 
     //关系数据库配置参数私有变量
-    private  String rdb_type;
-    private  String rdb_address;
-    private  String rdb_username;
-    private  String rdb_password;
-    private  ArrayList<String> rdbs_config;  //关系数据库内的各种表信息
+    private String rdb_type;
+    private String rdb_address;
+    private String rdb_username;
+    private String rdb_password;
+    private ArrayList<String> rdbs_config;  //关系数据库内的各种表信息
 
     @Override
     public void run() {
@@ -31,11 +31,8 @@ public class connectDB extends Thread{
         rdbs_config = new ArrayList<String>();
         setRdbs_config(read_rdbs_config());
 
-        for (int i=0; i<rdbs_config.size(); i++) {
-            System.out.println(rdbs_config.get(i));
-        }
-
         connectRDB();
+        give_hbase_conf();
     }
 
     public static void main (String args[]) {
@@ -79,6 +76,12 @@ public class connectDB extends Thread{
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    //hbase参数给予
+    public void give_hbase_conf() {
+        save_hbase save_hbase = new save_hbase(hbase_address,hbase_username,hbase_password);
+        save_hbase.main();
     }
 
     //获取RDBS配置文件信息方法
@@ -159,6 +162,10 @@ public class connectDB extends Thread{
             if(getRdbs_config().get(i).startsWith("databasename&&"))
             {
                 db_name=getRdbs_config().get(i).substring(14);
+
+                readLogTable readLogTable = new readLogTable(db_name,getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
+                readLogTable.run();
+
                 tables=new ArrayList<String>();
                 if(db_name.equals("")) {
                     System.out.print("配置文件中DB_name 配置错误,请重新配置.");
@@ -174,6 +181,8 @@ public class connectDB extends Thread{
                     {
                         ConnectMysql connectMysql = new ConnectMysql(db_name, tables, getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
                         connectMysql.run();
+
+
                     }
                 }
                 else

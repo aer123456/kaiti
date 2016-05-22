@@ -10,7 +10,7 @@
                 <name>WebDevelopment</name>
                 <tables>
                     <table>
-                        <tablename>Admin</tablename>//要同步的表
+                        <tablename>Merchant</tablename>//要同步的表
                         <sync>table1_to</sync>//同步到HBASE的哪个表中
                         <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
                     </table>
