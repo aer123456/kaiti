@@ -16,5 +16,20 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/hbase-0.90.4-cdh3u2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/hadoop-core-0.20.2-cdh3u2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/log4j-1.2.16.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/zookeeper-3.3.3-cdh3u2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/zookeeper-3.3.3-cdh3u2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

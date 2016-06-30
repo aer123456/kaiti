@@ -33,6 +33,14 @@ public class ConnectMysql extends Thread{
         url = url + "?useUnicode=true&characterEncoding=utf-8&useSSL=false";
 
         try {
+            //建立各种记录文件夹
+            String filepath = "file/DBFile/";
+            if ((makeDir(filepath, rdb_address, db_name)) == true) {
+                System.out.println("存储文件夹和相应文件创建成功.");
+            } else {
+                System.out.println("存储文件夹和相应文件创建失败");
+            }
+
             // 加载驱动程序
             Class.forName(driver);
             // 连接数据库
@@ -69,20 +77,12 @@ public class ConnectMysql extends Thread{
                         String table_to = table_param[j*3+1];
                         String time_space = table_param[j*3+2];
 
-                        // 查看表并建立相关文件夹和触发器
+                        // 查看表并建立触发器
                         DatabaseMetaData dmd2 = conn.getMetaData();
                         ResultSet table_rs = dmd2.getTables(null, null, null, null);
                         while (table_rs.next()) {
                             String tt2 = table_rs.getString("TABLE_NAME");
                             if (tt2.equals(table_name)) {
-                                //建立文件夹
-                                String filepath = "file/DBFile/";
-                                if ((makeDir(filepath, rdb_address, db_name, table_name)) == true) {
-                                    System.out.println("存储文件夹和相应文件创建成功.");
-                                } else {
-                                    System.out.println("存储文件夹和相应文件创建失败");
-                                }
-
                                 //得到表的主键
                                 String primaryKey = "";
                                 String getPrimkey = "select COLUMN_KEY,COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS" +
@@ -116,6 +116,7 @@ public class ConnectMysql extends Thread{
                                     System.out.println("database:" + db_name + "上的" + table_name + "表添加新的delete触发器失败");
                                 }
                                 System.out.println("database:" + db_name + "上的所有trigger 创建成功,并已开始监控.");
+                                System.out.println("--------------------------");
                             }
                         }
                     }
@@ -133,68 +134,129 @@ public class ConnectMysql extends Thread{
     }
 
     //新建表的所有相关文件夹和文件
-    public static boolean makeDir(String filePath,String rdb_address,String db_name,String table_name) {
+    public static boolean makeDir(String filePath,String rdb_address,String db_name) {
         try {
-            File backup = new File(filePath + "/" + rdb_address + "/" + db_name + "/" + table_name + "/backup");
-            File log = new File(filePath + "/" + rdb_address + "/" + db_name + "/" + table_name + "/log");
-            File middleFile = new File(filePath + "/" + rdb_address + "/" + db_name + "/" + table_name + "/middleFile");
-            File toHbaseLog = new File(filePath + "/" + rdb_address + "/" + db_name + "/" + table_name + "/toHbaseLog");
+            File backup = new File(filePath + "/" + rdb_address + "/" + db_name + "/backup");
+            File log = new File(filePath + "/" + rdb_address + "/" + db_name + "/log");
+            File logTable = new File(filePath + "/" + rdb_address + "/" + db_name + "/logTable");
+            File middleFile = new File(filePath + "/" + rdb_address + "/" + db_name + "/middleFile");
+            File toHbaseLog = new File(filePath + "/" + rdb_address + "/" + db_name + "/toHbaseLog");
 
-            if (backup.exists() && log.exists() && middleFile.exists() && toHbaseLog.exists()) {
+            if (backup.exists() && log.exists() && logTable.exists() && middleFile.exists() && toHbaseLog.exists()) {
+                //生成日志文件初始化txt文件
                 File log_file = new File(log.getAbsolutePath(),"log.txt");
                 if(!log_file.exists()) {
                     if (!log_file.createNewFile()) {
-                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + table_name + "生成log文件夹和文件失败");
-                        return true;
+                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "生成log文件夹和文件失败");
+                        return false;
                     }
                 }
+                String log_head = "time     table_changed     action     success/not     toHbase     count     tps\n";
+                OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(log_file),"UTF-8");
+                BufferedWriter writer = new BufferedWriter(write);
+                writer.write(log_head);
+                writer.close();
+                System.out.println("日志文件log_file初始化成功.");
 
+                //生成日志表初始化txt文件
+                File log_table_file = new File(logTable.getAbsolutePath(),"log_table.txt");
+                if(!log_table_file.exists()) {
+                    if (!log_table_file.createNewFile()) {
+                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "生成logTable文件夹和文件失败");
+                        return false;
+                    }
+                }
+                String logTable_head = "id     table_changed     primaryKeyName     primary_key_value     action" +
+                        "     table_to     time\n";
+                OutputStreamWriter write1 = new OutputStreamWriter(new FileOutputStream(log_table_file),"UTF-8");
+                BufferedWriter writer1 = new BufferedWriter(write1);
+                writer1.write(logTable_head);
+                writer1.close();
+                System.out.println("日志表文件log_table_file初始化成功.");
+
+                //生成中间文件txt文件
                 File middleFile_file = new File(middleFile.getAbsolutePath(), "middleFile.txt");
-                if (!middleFile.exists()) {
+                if (!middleFile_file.exists()) {
                     if (!middleFile_file.createNewFile()) {
-                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + table_name + "生成middleFile文件夹和文件失败");
-                        return true;
+                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "生成middleFile文件夹和文件失败");
+                        return false;
                     }
                 }
+                System.out.println("中间文件middle_file初始化成功.");
 
+                //生成到hbase的log文件并初始化txt
                 File toHbaseLog_file = new File(toHbaseLog.getAbsolutePath(),"toHbaseLog.txt");
                 if (!toHbaseLog_file.exists()) {
                     if (!toHbaseLog_file.createNewFile()) {
-                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + table_name + "生成toHbaseLog文件夹和文件失败");
-                        return true;
+                        System.out.println(rdb_address + "下的" + db_name + "数据库" + "生成toHbaseLog文件夹和文件失败");
+                        return false;
                     }
                 }
+                String hbase_log_head = "time     table     colFamily     action     success/not     count     tps\n";
+                OutputStreamWriter write2 = new OutputStreamWriter(new FileOutputStream(toHbaseLog_file),"UTF-8");
+                BufferedWriter writer2 = new BufferedWriter(write2);
+                writer2.write(hbase_log_head);
+                writer2.close();
+                System.out.println("hbase日志文件toHbaseLog_file初始化成功.");
 
-                return false;
+                return true;
 
             } else {
-                boolean mkdir_result = backup.mkdirs() && log.mkdirs() && middleFile.mkdirs() && toHbaseLog.mkdirs();
+                boolean mkdir_result = backup.mkdirs() && log.mkdirs() && logTable.mkdirs() && middleFile.mkdirs() && toHbaseLog.mkdirs();
                 if(mkdir_result) {
                     File log_file = new File(log.getAbsolutePath(),"log.txt");
                     if(!log_file.exists()) {
                         if (!log_file.createNewFile()) {
-                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + table_name + "生成log文件夹和文件失败");
-                            return true;
+                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" +"生成log文件夹和文件失败");
+                            return false;
                         }
                     }
+                    String log_head = "time     table_changed     action     success/not     toHbase     tps\n";
+                    OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(log_file),"UTF-8");
+                    BufferedWriter writer = new BufferedWriter(write);
+                    writer.write(log_head);
+                    writer.close();
+                    System.out.println("日志文件log_file初始化成功.");
+
+                    File log_table_file = new File(logTable.getAbsolutePath(),"log_table.txt");
+                    if(!log_table_file.exists()) {
+                        if (!log_table_file.createNewFile()) {
+                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "生成logTable文件夹和文件失败");
+                            return false;
+                        }
+                    }
+                    String logTable_head = "id     table_changed     primary_key     action" +
+                            "     table_to     time\n";
+                    OutputStreamWriter write1 = new OutputStreamWriter(new FileOutputStream(log_table_file),"UTF-8");
+                    BufferedWriter writer1 = new BufferedWriter(write1);
+                    writer1.write(logTable_head);
+                    writer1.close();
+                    System.out.println("日志表文件log_table_file初始化成功.");
 
                     File middleFile_file = new File(middleFile.getAbsolutePath(), "middleFile.txt");
-                    if (!middleFile.exists()) {
+                    if (!middleFile_file.exists()) {
                         if (!middleFile_file.createNewFile()) {
-                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + table_name + "生成middleFile文件夹和文件失败");
-                            return true;
+                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + "生成middleFile文件夹和文件失败");
+                            return false;
                         }
                     }
+                    System.out.println("中间文件middle_file初始化成功.");
 
                     File toHbaseLog_file = new File(toHbaseLog.getAbsolutePath(),"toHbaseLog.txt");
                     if (!toHbaseLog_file.exists()) {
                         if (!toHbaseLog_file.createNewFile()) {
-                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + table_name + "生成toHbaseLog文件夹和文件失败");
-                            return true;
+                            System.out.println(rdb_address + "下的" + db_name + "数据库" + "的表" + "生成toHbaseLog文件夹和文件失败");
+                            return false;
                         }
                     }
+                    String hbase_log_head = "time     table     colFamily     action     success/not     count     tps\n";
+                    OutputStreamWriter write2 = new OutputStreamWriter(new FileOutputStream(toHbaseLog_file),"UTF-8");
+                    BufferedWriter writer2 = new BufferedWriter(write2);
+                    writer2.write(hbase_log_head);
+                    writer2.close();
+                    System.out.println("hbase日志文件toHbaseLog_file初始化成功.");
 
-                    return false;
+                    return true;
                 }
             }
         } catch (IOException e) {

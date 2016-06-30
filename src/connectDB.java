@@ -32,7 +32,6 @@ public class connectDB extends Thread{
         setRdbs_config(read_rdbs_config());
 
         connectRDB();
-        give_hbase_conf();
     }
 
     public static void main (String args[]) {
@@ -76,12 +75,6 @@ public class connectDB extends Thread{
         }catch(Exception e){
             e.printStackTrace();
         }
-    }
-
-    //hbase参数给予
-    public void give_hbase_conf() {
-        save_hbase save_hbase = new save_hbase(hbase_address,hbase_username,hbase_password);
-        save_hbase.main();
     }
 
     //获取RDBS配置文件信息方法
@@ -163,9 +156,6 @@ public class connectDB extends Thread{
             {
                 db_name=getRdbs_config().get(i).substring(14);
 
-                readLogTable readLogTable = new readLogTable(db_name,getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
-                readLogTable.run();
-
                 tables=new ArrayList<String>();
                 if(db_name.equals("")) {
                     System.out.print("配置文件中DB_name 配置错误,请重新配置.");
@@ -182,13 +172,25 @@ public class connectDB extends Thread{
                         ConnectMysql connectMysql = new ConnectMysql(db_name, tables, getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
                         connectMysql.run();
 
+                        readLogTable readLogTable = new readLogTable(db_name,getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
+                        readLogTable.run();
 
+                        //hbase参数给予
+                        save_hbase save_hbase = new save_hbase(db_name,getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password(),hbase_address,hbase_username,hbase_password);
+                        save_hbase.run();
                     }
                 }
                 else
                 {
                     ConnectMysql connectMysql = new ConnectMysql(db_name, tables, getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
                     connectMysql.run();
+
+                    readLogTable readLogTable = new readLogTable(db_name,getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password());
+                    readLogTable.run();
+
+                    //hbase参数给予
+                    save_hbase save_hbase = new save_hbase(db_name,getRdb_type(), getRdb_address(), getRdb_username(), getRdb_password(),hbase_address,hbase_username,hbase_password);
+                    save_hbase.run();
                 }
 
             }
@@ -257,6 +259,3 @@ public class connectDB extends Thread{
     }
     //RDB配置信息私有变量设置  结束
 }
-
-
-

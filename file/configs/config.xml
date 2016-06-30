@@ -11,22 +11,12 @@
                 <tables>
                     <table>
                         <tablename>Merchant</tablename>//要同步的表
-                        <sync>table1_to</sync>//同步到HBASE的哪个表中
+                        <sync>Merchant</sync>//同步到HBASE的哪个表中
                         <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
                     </table>
                     <table>
                         <tablename>Customer</tablename>//要同步的表
-                        <sync>table2_to</sync>//同步到HBASE的哪个表中
-                        <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
-                    </table>
-                </tables>
-            </database>
-            <database>//一个database包含多个table,每个表都要设置同步到哪里
-                <name>test</name>
-                <tables>
-                    <table>
-                        <tablename>test_table</tablename>//要同步的表
-                        <sync>table3_to</sync>//同步到HBASE的哪个表中
+                        <sync>Customer</sync>//同步到HBASE的哪个表中
                         <timespace>2016/3/11 12:31:30 -- 2016/3/21 12:31:20</timespace>//同步的时间段
                     </table>
                 </tables>
@@ -34,8 +24,15 @@
         </databases>
 	</RDB>
 	<HBASE>
-		<address>000.0.0.1:3306</address>
+		<address>127.0.0.1:6666</address>
 		<username>admin</username>
-		<password>000000</password>
+		<password>111111</password>
 	</HBASE>
 </config>
+
+<!-- log4j写日志 -->
+<!-- 日志:  从trigger表写入logTable的log: 时间,表,action,成功与否,命令行输出 -->
+<!-- 日志:  从middleFile写入hbase的log: 时间,文件中的id,成功与否,命令行输出 -->
+<!-- 测试: 一个可执行sql改变文件,可以查看的中间文件和log -->
+<!-- 运行截屏或者截图 -->
+<!-- 打包,日志详情 -->

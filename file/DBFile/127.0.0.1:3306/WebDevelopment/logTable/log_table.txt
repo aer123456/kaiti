@@ -1,0 +1,5 @@
+id     table_changed     primaryKeyName     primary_key_value     action     table_to     time
+1     Merchant     merchant_id     1     update     Merchant     2016-06-05 23:12:30.0
+2     Merchant     merchant_id     2     update     Merchant     2016-06-05 23:12:30.0
+3     Merchant     merchant_id     3     update     Merchant     2016-06-05 23:12:30.0
+3     Merchant     merchant_id     3     update     Merchant     2016-06-05 23:12:30.0

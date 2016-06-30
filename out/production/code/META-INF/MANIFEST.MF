@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: /Users/huguantao/dev/personal/kaiti/out/production/code/co
+ nnectDB.class
+Main-Class: connectDB
+

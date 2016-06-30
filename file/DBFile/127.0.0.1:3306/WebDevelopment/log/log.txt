@@ -1,0 +1,4 @@
+time     table_changed     action     success/not     toHbase     count     tps
+2016-06-05 23:12:30.0     Merchant     update     1     3     1
+2016-06-05 23:12:30.0     Merchant     update     1     5     2
+2016-06-05 23:12:30.0     Merchant     update     1     6     1
